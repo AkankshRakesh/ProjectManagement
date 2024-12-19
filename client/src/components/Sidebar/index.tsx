@@ -1,15 +1,15 @@
 "use client";
 import { useAppDispatch, useAppSelector } from '@/app/redux';
 import { setIsSidebarCollapsed } from '@/state';
-import { Briefcase, Home, LockIcon, LucideIcon, Search, Settings, User, Users, X } from 'lucide-react';
+import { AlertCircle, AlertOctagon, AlertTriangle, Briefcase, ChevronDown, ChevronUp, Home, Layers3, LockIcon, LucideIcon, Search, Settings, ShieldAlert, User, Users, X } from 'lucide-react';
 import Image from 'next/image';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import React, { } from 'react'
+import React, { useState } from 'react'
 
 const Sidebar = () => {
-  // const [showProjects, setShowProjects] = useState(true);
-  // const [showPriority, setShowPriority] = useState(true);
+  const [showProjects, setShowProjects] = useState(true);
+  const [showPriority, setShowPriority] = useState(true);
   const dispatch = useAppDispatch();
   const isSidebarCollapsed = useAppSelector(
       (state) => state.global.isSidebarCollapsed,
@@ -60,7 +60,34 @@ const Sidebar = () => {
           <SidebarLink icon={Users} label="Team" href="/teams" />
         </nav>
 
-        {/* <button onClick={() => setShowProjects()} */}
+        <button onClick={() => setShowProjects((prev) => !prev)} className='flex w-full items-center justify-between px-8 py-3 text-gray-500'>
+          <span className=''>Projects</span>
+          {showProjects ? (
+            <ChevronUp className='h-5 w-5' />
+          ) : (
+            <ChevronDown className='h-5 w-5' />
+          )}
+        </button>
+
+        <button onClick={() => setShowPriority((prev) => !prev)} className='flex w-full items-center justify-between px-8 py-3 text-gray-500'>
+          <span className=''>Priority</span>
+          {showPriority ? (
+            <ChevronUp className='h-5 w-5' />
+          ) : (
+            <ChevronDown className='h-5 w-5' />
+          )}
+        </button>
+
+        {showPriority && (
+          <>
+            <SidebarLink icon={AlertCircle} label="Urgent" href="/priority/urgent" />
+            <SidebarLink icon={ShieldAlert} label="High" href="/priority/High" />
+            <SidebarLink icon={AlertTriangle} label="Medium" href="/priority/Medium" />
+            <SidebarLink icon={AlertOctagon} label="Low" href="/priority/Low" />
+            <SidebarLink icon={Layers3} label="Backlog" href="/priority/Backlog" />
+          </>
+        )  
+        }
       </div>
     </div>
   )
