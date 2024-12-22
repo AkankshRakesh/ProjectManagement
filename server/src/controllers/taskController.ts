@@ -22,6 +22,6 @@ export const getTasks = async (
 export const createTask = async (
     req: Request,
     res: Response
-) : Promise<void> => {
+) : Promise<void> => { 
     const {title, description, priority, startDate, dueDate, tags, projectId, authorUserId, assignedUserId} = req.body;
 };
