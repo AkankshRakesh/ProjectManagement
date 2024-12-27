@@ -69,7 +69,7 @@ const Timeline = ({ id, setIsModalNewTaskOpen }: Props) => {
         </div>
       </div>
 
-      <div className="overflow-hidden rounded-md bg-white shadow dark:bg-dark-secondary dark:text-white">
+      <div className="overflow-hidden rounded-md bg-white shadow">
         <div className="timeline">
           <Gantt
             tasks={ganttTasks}
