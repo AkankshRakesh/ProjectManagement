@@ -21,7 +21,7 @@ const Timeline = ({ id, setIsModalNewTaskOpen }: Props) => {
 
   const [displayOptions, setDisplayOptions] = useState<DisplayOption>({
     viewMode: ViewMode.Month,
-    locale: "en-US",
+    locale: "en-IN",
   });
 
   const ganttTasks = useMemo(() => {
