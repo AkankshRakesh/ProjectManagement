@@ -15,7 +15,12 @@ app.use(helmet.crossOriginEmbedderPolicy());
 app.use(morgan("common"));
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: false }));
-app.use(cors());
+
+app.use(cors({
+  origin: "*", // Allows all origins
+  methods: "*", // Allowed methods
+  allowedHeaders: ["Content-Type", "Authorization"], // Allowed headers
+}));
 
 app.get("/", (req, res) => {
   res.send("Hello World!");
