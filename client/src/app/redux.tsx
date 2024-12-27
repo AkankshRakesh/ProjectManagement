@@ -80,11 +80,13 @@ export default function StoreProvider({
 }: {
   children: React.ReactNode;
 }) {
-  const storeRef = useRef<AppStore>();
+  const storeRef = useRef<AppStore | null>(null); // Initialize with null
+
   if (!storeRef.current) {
-    storeRef.current = makeStore();
-    setupListeners(storeRef.current.dispatch);
+    storeRef.current = makeStore(); // Create the store if it doesn't exist
+    setupListeners(storeRef.current.dispatch); // Setup Redux listeners
   }
+
   const persistor = persistStore(storeRef.current);
 
   return (
