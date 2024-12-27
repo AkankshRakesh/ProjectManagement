@@ -1,7 +1,7 @@
 import { useAppSelector } from "@/app/redux";
 import { useGetTasksQuery } from "@/state/api";
-import { DisplayOption, Gantt, ViewMode } from "@wamra/gantt-task-react";
-import "@wamra/gantt-task-react/dist/style.css";
+import { DisplayOption, Gantt, ViewMode } from "gantt-task-react";
+import "gantt-task-react/dist/index.css";
 import React, { useMemo, useState } from "react";
 
 type Props = {
@@ -21,7 +21,7 @@ const Timeline = ({ id, setIsModalNewTaskOpen }: Props) => {
 
   const [displayOptions, setDisplayOptions] = useState<DisplayOption>({
     viewMode: ViewMode.Month,
-    locale: "en-IN",
+    locale: "en-US",
   });
 
   const ganttTasks = useMemo(() => {
@@ -34,7 +34,6 @@ const Timeline = ({ id, setIsModalNewTaskOpen }: Props) => {
         type: "task" as TaskTypeItems,
         progress: task.points ? (task.points / 10) * 100 : 0,
         isDisabled: false,
-        styles: { progressColor: 'blue', progressSelectedColor: '#ff9e0d' },
       })) || []
     );
   }, [tasks]);
