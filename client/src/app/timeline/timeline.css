@@ -1,0 +1,8 @@
+.dark-mode .gantt .ganttTable .ganttTableBody .ganttTableRow {
+    background-color: #101214 !important;
+  }
+  
+  .dark-mode .gantt .ganttTable .ganttTableBody .ganttTableRow:nth-child(odd) {
+    background-color: #101214 !important;
+  }
+  
