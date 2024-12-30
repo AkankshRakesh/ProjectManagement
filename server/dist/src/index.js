@@ -27,6 +27,7 @@ app.use((0, cors_1.default)({
     methods: "*", // Allowed methods
     allowedHeaders: ["Content-Type", "Authorization"], // Allowed headers
 }));
+app.options("*", (0, cors_1.default)());
 app.get("/", (req, res) => {
     res.send("Hello World!");
 });
