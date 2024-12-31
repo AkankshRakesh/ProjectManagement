@@ -49,6 +49,7 @@ const Timeline = () => {
     <div className="max-w-full p-8">
       <header className="mb-4 flex items-center justify-between">
         <Header name="Projects Timeline" />
+        
         <div className="relative inline-block w-64">
           <select
             className="focus:shadow-outline block w-full appearance-none rounded border border-gray-400 bg-white px-4 py-2 pr-8 leading-tight shadow hover:border-gray-500 focus:outline-none dark:border-dark-secondary "
@@ -75,6 +76,11 @@ const Timeline = () => {
           />
         </div>
       </div>
+      <div className='mb-5 flex w-full items-center justify-between md:hidden'>
+        <h1 className="text-lg font-semibold dark:text-white">
+            Kindly switch to desktok view for proper viewing of the timeline
+        </h1>
+    </div>
     </div>
   );
 };

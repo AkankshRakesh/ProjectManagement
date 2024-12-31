@@ -89,6 +89,11 @@ const Timeline = ({ id, setIsModalNewTaskOpen }: Props) => {
           </button>
         </div>
       </div>
+      <div className='mb-5 flex w-full items-center justify-between md:hidden'>
+        <h1 className="text-lg font-semibold dark:text-white">
+            Kindly switch to desktok view for proper viewing of the timeline
+        </h1>
+    </div>
     </div>
   );
 };
