@@ -1,7 +1,6 @@
 import React, { createContext, useContext, useState, useEffect } from "react";
-import { initializeApp } from "firebase/app";
+import auth from "./firebaseConfig";
 import {
-  getAuth,
   createUserWithEmailAndPassword,
   signInWithEmailAndPassword,
   onAuthStateChanged,
@@ -9,21 +8,16 @@ import {
 } from "firebase/auth";
 import { useCreateUserMutation } from "@/state/api"; // Import the mutation from your Redux slice
 
-// Firebase configuration
-const firebaseConfig = {
-  apiKey: "AIzaSyC3geXbOjQ02rx6fBj7fijJ-KVCN-Cdyb4",
-  authDomain: "syncflow-4deef.firebaseapp.com",
-  projectId: "syncflow-4deef",
-  storageBucket: "syncflow-4deef.firebasestorage.app",
-  messagingSenderId: "807912236448",
-  appId: "1:807912236448:web:47a57129875f2ce11f70c5",
-  measurementId: "G-RHK69BHX1M",
-};
-
-// Initialize Firebase
-const app = initializeApp(firebaseConfig);
-const auth = getAuth(app);
-
+// // Firebase configuration
+// const firebaseConfig = {
+//   apiKey: "AIzaSyC3geXbOjQ02rx6fBj7fijJ-KVCN-Cdyb4",
+//   authDomain: "syncflow-4deef.firebaseapp.com",
+//   projectId: "syncflow-4deef",
+//   storageBucket: "syncflow-4deef.firebasestorage.app",
+//   messagingSenderId: "807912236448",
+//   appId: "1:807912236448:web:47a57129875f2ce11f70c5",
+//   measurementId: "G-RHK69BHX1M",
+// };
 // Create an Auth Context
 const AuthContext = createContext<any>(null);
 

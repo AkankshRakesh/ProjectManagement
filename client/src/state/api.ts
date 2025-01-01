@@ -80,6 +80,10 @@ export const api = createApi({
   reducerPath: "api",
   tagTypes: ["Projects", "Tasks", "Users", "Teams"],
   endpoints: (build) => ({
+    getUser: build.query<User, string>({
+      query: (userId) => `users/${userId}`, // Replace with your actual endpoint
+      providesTags: (result, error, userId) => [{ type: "Users", id: userId }],
+    }),
     createUser: build.mutation<User, Partial<User>>({
       query: (user) => ({
         url: "users", // Replace with your actual endpoint
@@ -148,6 +152,7 @@ export const api = createApi({
 
 export const {
   useGetProjectsQuery,
+  useGetUserQuery,
   useCreateProjectMutation,
   useCreateUserMutation,
   useGetTasksQuery,

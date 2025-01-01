@@ -2,7 +2,40 @@ import React from 'react'
 import {Menu, Moon, Search, Settings, Sun} from "lucide-react"
 import { useAppDispatch, useAppSelector } from "@/app/redux";
 import { setIsDarkMode, setIsSidebarCollapsed } from "@/state";
-import Link from "next/link"  
+import auth from '@/app/firebaseConfig';
+const currentUser = auth.currentUser;
+import Link from "next/link"
+import { useGetUserQuery } from "@/state/api";
+import Image from 'next/image';
+const UserDetails = ({ userId }: { userId: string }) => {
+  const { data: user, isLoading, error } = useGetUserQuery(userId);
+
+  if (isLoading) return <p>Loading...</p>;
+  if (error) return <p>Error fetching user details</p>;
+
+  return (
+    <div className="hidden items-center justify-between md:flex">
+          <div className="align-center flex h-9 w-9 justify-center">=
+              <Image
+                src={`/${user?.profilePictureUrl}`}
+                alt={user?.username || "User Profile Picture"}
+                width={100}
+                height={50}
+                className="h-full rounded-full object-cover"
+              />
+          </div>
+          <span className="mx-3 text-gray-800 dark:text-white">
+            {user?.username}
+          </span>
+          {/* <button
+            className="hidden rounded bg-blue-400 px-4 py-2 text-xs font-bold text-white hover:bg-blue-500 md:block"
+            onClick={handleSignOut}
+          >
+            Sign out
+          </button> */}
+    </div>
+  );
+};
 const Navbar = () => {
   const dispatch = useAppDispatch();
   const isSidebarCollapsed = useAppSelector(
@@ -54,6 +87,8 @@ const Navbar = () => {
           <Settings className="h-6 w-6 cursor-pointer dark:text-white" />
         </Link>
         <div className="ml-2 mr-5 hidden min-h-[2em] w-[0.1rem] bg-gray-200 md:inline-block"></div>
+        <UserDetails userId={currentUser.uid || ''} />
+        {/* <p>{currentUser?.uid}</p> */}
       </div>
     </div>
   )
