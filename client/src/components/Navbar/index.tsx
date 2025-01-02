@@ -1,9 +1,9 @@
-import React from 'react'
+import React, { useEffect, useState } from 'react'
 import {Menu, Moon, Search, Settings, Sun} from "lucide-react"
 import { useAppDispatch, useAppSelector } from "@/app/redux";
 import { setIsDarkMode, setIsSidebarCollapsed } from "@/state";
+import { onAuthStateChanged, signOut } from 'firebase/auth';
 import auth from '@/app/firebaseConfig';
-const currentUser = auth.currentUser;
 import Link from "next/link"
 import { useGetUserQuery } from "@/state/api";
 import Image from 'next/image';
@@ -12,10 +12,16 @@ const UserDetails = ({ userId }: { userId: string }) => {
 
   if (isLoading) return <p>Loading...</p>;
   if (error) return <p>Error fetching user details</p>;
-
+  const handleSignOut = async () => {
+    try {
+      await signOut(auth);
+    } catch (error) {
+      console.error("Error signing out: ", error);
+    }
+  };
   return (
     <div className="hidden items-center justify-between md:flex">
-          <div className="align-center flex h-9 w-9 justify-center">=
+          <div className="align-center flex h-9 w-9 justify-center">
               <Image
                 src={`/${user?.profilePictureUrl}`}
                 alt={user?.username || "User Profile Picture"}
@@ -27,12 +33,12 @@ const UserDetails = ({ userId }: { userId: string }) => {
           <span className="mx-3 text-gray-800 dark:text-white">
             {user?.username}
           </span>
-          {/* <button
+          <button
             className="hidden rounded bg-blue-400 px-4 py-2 text-xs font-bold text-white hover:bg-blue-500 md:block"
             onClick={handleSignOut}
           >
             Sign out
-          </button> */}
+          </button>
     </div>
   );
 };
@@ -42,6 +48,19 @@ const Navbar = () => {
     (state) => state.global.isSidebarCollapsed,
   );
   const isDarkMode = useAppSelector((state) => state.global.isDarkMode);
+  const [currentUser, setCurrentUser] = useState<any>(null);
+
+  useEffect(() => {
+    const unsubscribe = onAuthStateChanged(auth, (user) => {
+      setCurrentUser(user); // Dynamically update the current user
+    });
+
+    return () => unsubscribe(); // Clean up the listener
+  }, []);
+
+  if (!currentUser) {
+    return <p>Loading...</p>; // Render a placeholder while loading
+  }
   return (
     <div className='flex items-center justify-between bg-white px-4 py-3 dark:bg-black dark:px-4 dark:py-3'>
       <div className='flex items-center gap-8'>
@@ -87,7 +106,7 @@ const Navbar = () => {
           <Settings className="h-6 w-6 cursor-pointer dark:text-white" />
         </Link>
         <div className="ml-2 mr-5 hidden min-h-[2em] w-[0.1rem] bg-gray-200 md:inline-block"></div>
-        <UserDetails userId={currentUser.uid || ''} />
+        <UserDetails userId={currentUser.uid} />
         {/* <p>{currentUser?.uid}</p> */}
       </div>
     </div>
