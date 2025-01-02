@@ -20,8 +20,10 @@ const UserDetails = ({ userId }: { userId: string }) => {
     }
   };
   return (
-    <div className="hidden items-center justify-between md:flex">
-          <div className="align-center flex h-9 w-9 justify-center">
+    <div className="items-center justify-between flex">
+        <Link
+          href="/settings">
+          <div className="align-center flex h-9 w-9 justify-center mx-2 md:mx-0">
               <Image
                 src={`/${user?.profilePictureUrl}`}
                 alt={user?.username || "User Profile Picture"}
@@ -30,11 +32,12 @@ const UserDetails = ({ userId }: { userId: string }) => {
                 className="h-full rounded-full object-cover"
               />
           </div>
-          <span className="mx-3 text-gray-800 dark:text-white">
+          </Link>
+          <span className="hidden md:block mx-3 text-gray-800 dark:text-white ">
             {user?.username}
           </span>
           <button
-            className="hidden rounded bg-blue-400 px-4 py-2 text-xs font-bold text-white hover:bg-blue-500 md:block"
+            className="rounded bg-blue-400 px-4 py-2 text-xs font-bold text-white hover:bg-blue-500"
             onClick={handleSignOut}
           >
             Sign out
@@ -99,11 +102,11 @@ const Navbar = () => {
           href="/settings"
           className={
             isDarkMode
-              ? `h-min w-min rounded p-2 dark:hover:bg-gray-700`
-              : `h-min w-min rounded p-2 hover:bg-gray-100`
+              ? `h-min w-min rounded md:p-2 dark:hover:bg-gray-700`
+              : `h-min w-min rounded md:p-2 hover:bg-gray-100`
           }
         >
-          <Settings className="h-6 w-6 cursor-pointer dark:text-white" />
+          <Settings className="hidden md:block h-6 w-6 cursor-pointer dark:text-white" />
         </Link>
         <div className="ml-2 mr-5 hidden min-h-[2em] w-[0.1rem] bg-gray-200 md:inline-block"></div>
         <UserDetails userId={currentUser.uid} />
