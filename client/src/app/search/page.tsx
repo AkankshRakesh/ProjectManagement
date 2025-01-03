@@ -5,10 +5,13 @@ import TaskCard from '@/components/TaskCard';
 import UserCard from '@/components/UserCard';
 import { useSearchQuery } from '@/state/api';
 import { debounce } from 'lodash';
+import { useSearchParams } from 'next/navigation';
 import React, { useEffect, useState } from 'react'
 
 
 const Search = () => {
+  const searchParams = useSearchParams();
+  const initialQuery = searchParams.get('query') || '';
   const [searchTerm, setSearchTerm] = useState('');
   const { data: searchResults, isLoading, isError } = useSearchQuery(searchTerm, {
     skip: searchTerm.length < 3
@@ -17,7 +20,9 @@ const Search = () => {
   const handleSearch = debounce((event: React.ChangeEvent<HTMLInputElement>) => {
     setSearchTerm(event.target.value);
   }, 500);
-
+  useEffect(() => {
+    setSearchTerm(initialQuery);
+  }, [initialQuery]);
   useEffect(() => {
     return handleSearch.cancel;
   })
@@ -29,7 +34,7 @@ const Search = () => {
           type="text"
           placeholder="Search..."
           className="w-1/2 rounded border p-3 shadow"
-          onChange={handleSearch}
+          onChange={(e) => setSearchTerm(e.target.value)}
         />
       </div>
       <div className='p-5 dark:text-white'>

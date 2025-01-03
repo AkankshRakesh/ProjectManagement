@@ -9,23 +9,23 @@ export const search = async (req: Request, res: Response): Promise<void> => {
       const tasks = await prisma.task.findMany({
         where: {
             OR: [
-                {title: {contains: query as string}},
-                {description: {contains: query as string}},
+                {title: {contains: query as string, mode: 'insensitive'}},
+                {description: {contains: query as string, mode: 'insensitive'}},
             ]
         }
       });
       const projects = await prisma.project.findMany({
         where: {
             OR: [
-                {name: {contains: query as string}},
-                {description: {contains: query as string}},
+                {name: {contains: query as string, mode: 'insensitive'}},
+                {description: {contains: query as string, mode: 'insensitive'}},
             ]
         }
       });
       const users = await prisma.user.findMany({
         where: {
             OR: [
-                {username: {contains: query as string}}
+                {username: {contains: query as string, mode: 'insensitive'}}
             ]
         }
       });
