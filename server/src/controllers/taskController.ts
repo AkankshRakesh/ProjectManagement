@@ -42,7 +42,9 @@ export const getTasks = async (req: Request, res: Response): Promise<void> => {
       authorUserId,
       assignedUserId,
     } = req.body;
+    
     try {
+      
       const newTask = await prisma.task.create({
         data: {
           title,
