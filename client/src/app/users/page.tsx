@@ -25,7 +25,9 @@ const columns: GridColDef[] = [
         <div className="flex h-full w-full items-center justify-center">
           <div className="h-9 w-9">
             <Image
-              src={`/${params.value}`}
+              src={params.value && params.value.startsWith('http') 
+                ? params.value
+                : `/${params.value}`}
               alt={params.row.username}
               width={100}
               height={50}

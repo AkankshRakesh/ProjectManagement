@@ -28,7 +28,9 @@ const UserDetails = ({ userId }: { userId: string }) => {
       <Link href="/settings">
         <div className="align-center flex h-9 w-9 justify-center mx-2 md:mx-0">
           <Image
-            src={`/${user?.profilePictureUrl}`}
+            src={user?.profilePictureUrl && user.profilePictureUrl.startsWith('http') 
+              ? user.profilePictureUrl 
+              : `/${user?.profilePictureUrl}`}
             alt={user?.username || "User Profile Picture"}
             width={100}
             height={50}

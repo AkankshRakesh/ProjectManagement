@@ -19,6 +19,7 @@ const Settings = () => {
     email: '',
     teamName: 'Development Team',
     roleName: 'Developer',
+    profilePictureUrl: '', // Add field for profile picture URL
   });
 
   const [uid, setUid] = useState<string | null>(null);
@@ -45,6 +46,7 @@ const Settings = () => {
       setUserSettings((prev) => ({
         ...prev,
         username: userData.username,
+        profilePictureUrl: userData.profilePictureUrl || 'default.jpg', // Set the profile picture URL or default
       }));
     }
   }, [userData]);
@@ -62,6 +64,19 @@ const Settings = () => {
         <p className={labelStyles}>Error fetching user data.</p>
       ) : (
         <>
+          {/* Profile Picture Section */}
+          <div>
+            <label className={labelStyles}>Profile Picture</label>
+            <div className="mt-2">
+              <img
+                src={userSettings?.profilePictureUrl && userSettings.profilePictureUrl.startsWith('http') 
+                  ? userSettings.profilePictureUrl 
+                  : `/${userSettings?.profilePictureUrl}`}
+                alt="Profile"
+                className="w-32 h-32 rounded-full object-cover"
+              />
+            </div>
+          </div>
           <div>
             <label className={labelStyles}>Username</label>
             <div className={textStyles}>{userSettings.username || 'N/A'}</div>

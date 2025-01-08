@@ -7,17 +7,8 @@ import {
   User,
 } from "firebase/auth";
 import { useCreateUserMutation } from "@/state/api"; // Import the mutation from your Redux slice
+import { uploadProfilePicture } from "./profileUpload";
 
-// // Firebase configuration
-// const firebaseConfig = {
-//   apiKey: "AIzaSyC3geXbOjQ02rx6fBj7fijJ-KVCN-Cdyb4",
-//   authDomain: "syncflow-4deef.firebaseapp.com",
-//   projectId: "syncflow-4deef",
-//   storageBucket: "syncflow-4deef.firebasestorage.app",
-//   messagingSenderId: "807912236448",
-//   appId: "1:807912236448:web:47a57129875f2ce11f70c5",
-//   measurementId: "G-RHK69BHX1M",
-// };
 // Create an Auth Context
 const AuthContext = createContext<any>(null);
 
@@ -32,27 +23,36 @@ const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     const unsubscribe = onAuthStateChanged(auth, async (firebaseUser) => {
       setUser(firebaseUser);
       setLoading(false);
-
-      if (firebaseUser) {
-        // Get the necessary user data from Firebase
-        const { uid, email } = firebaseUser;
-      }
     });
 
     return () => unsubscribe();
   }, [createUser]);
 
   // Sign-up function
-  const signUp = async (username: string, email: string, password: string) => {
+  const signUp = async (
+    username: string,
+    email: string,
+    password: string,
+    profilePicture: File | string,
+    useDefault: boolean
+  ) => {
     try {
       const userCredential = await createUserWithEmailAndPassword(auth, email, password);
       const { uid } = userCredential.user;
-      // for postgresql -> stores username and teamId
+
+      let profilePictureUrl = useDefault ? "default.jpg" : "default.jpg"; // Default profile picture URL
+
+      // If the user uploaded a profile picture, upload it to Cloudinary
+      if (typeof profilePicture !== "string" && !useDefault) {
+        profilePictureUrl = await uploadProfilePicture(profilePicture);
+      }
+
+      // Save the user to your backend
       await createUser({
         cognitoId: uid,
-        username: username || "", // Set username to email prefix
+        username: username || "", // Use email prefix if username is empty
         email: email || "",
-        profilePictureUrl: "default.jpg", // Optional
+        profilePictureUrl, // Cloudinary URL or default
       });
     } catch (error) {
       console.error("Sign-up error:", error);
@@ -107,9 +107,11 @@ const AuthForm = () => {
     email: "", 
     password: "", 
     confirmPassword: "", 
-    username: "" 
+    username: "",
+    profilePicture: null as File | null
   });
   const [isSignUp, setIsSignUp] = useState(true);
+  const [useDefault, setUseDefault] = useState(false);
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -118,7 +120,7 @@ const AuthForm = () => {
         alert("Passwords do not match!");
         return;
       }
-      signUp(form.username, form.email, form.password, form.username);
+      signUp(form.username, form.email, form.password, form.profilePicture, useDefault);
     } else {
       signIn(form.email, form.password);
     }
@@ -137,6 +139,35 @@ const AuthForm = () => {
             required
             className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring focus:ring-indigo-300"
           />
+        </div>
+      )}
+      {isSignUp && !useDefault && (
+        <div>
+          <label className="block text-sm font-medium text-gray-700">Profile Picture</label>
+          <input
+            type="file"
+            accept="image/*"
+            onChange={(e) => {
+              const file = e.target.files?.[0];
+              if (file) {
+                setForm({ ...form, profilePicture: file });
+              }
+            }}
+            className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring focus:ring-indigo-300"
+          />
+        </div>
+      )}
+      {isSignUp && (
+        <div>
+          <label className="flex items-center space-x-2">
+            <input
+              type="checkbox"
+              checked={useDefault}
+              onChange={(e) => setUseDefault(e.target.checked)}
+              className="h-5 w-5"
+            />
+            <span className="text-sm text-gray-700">Use default profile picture</span>
+          </label>
         </div>
       )}
       <div>
@@ -190,6 +221,5 @@ const AuthForm = () => {
     </form>
   );
 };
-
 
 export default AuthProvider;
