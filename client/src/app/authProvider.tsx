@@ -8,7 +8,8 @@ import {
 } from "firebase/auth";
 import { useCreateUserMutation } from "@/state/api"; // Import the mutation from your Redux slice
 import { uploadProfilePicture } from "./profileUpload";
-
+import { toast } from "react-toastify"; // Import Toaster's toast function
+import "react-toastify/dist/ReactToastify.css";
 // Create an Auth Context
 const AuthContext = createContext<any>(null);
 
@@ -40,7 +41,7 @@ const AuthProvider = ({ children }: { children: React.ReactNode }) => {
       const userCredential = await createUserWithEmailAndPassword(auth, email, password);
       const { uid } = userCredential.user;
 
-      let profilePictureUrl = useDefault ? "default.jpg" : "default.jpg"; // Default profile picture URL
+      let profilePictureUrl = useDefault ? "userDefault.jpg" : "userDefault.jpg"; // Default profile picture URL
 
       // If the user uploaded a profile picture, upload it to Cloudinary
       if (typeof profilePicture !== "string" && !useDefault) {
@@ -54,8 +55,12 @@ const AuthProvider = ({ children }: { children: React.ReactNode }) => {
         email: email || "",
         profilePictureUrl, // Cloudinary URL or default
       });
-    } catch (error) {
-      console.error("Sign-up error:", error);
+    } catch (error: any) {
+      if (error.code === "auth/email-already-in-use") {
+        toast.error("Email already in use. Please sign in.");
+      } else {
+        toast.error("Sign-in error: " + error.message);
+      }
     }
   };
 
@@ -65,11 +70,11 @@ const AuthProvider = ({ children }: { children: React.ReactNode }) => {
       await signInWithEmailAndPassword(auth, email, password);
     } catch (error: any) {
       if (error.code === "auth/invalid-credential") {
-        alert("Incorrect password. Please try again.");
+        toast.error("Incorrect password or email. Please try again.");
       } else if (error.code === "auth/user-not-found") {
-        alert("No account found with this email. Please sign up.");
+        toast.error("No account found with this email. Please sign up.");
       } else {
-        alert("Sign-in error: " + error.message);
+        toast.error("Sign-in error: " + error.message);
       }
     }
   };
@@ -103,94 +108,170 @@ const useAuth = () => useContext(AuthContext);
 // Auth Form
 const AuthForm = () => {
   const { signUp, signIn } = useAuth();
-  const [form, setForm] = useState({ 
-    email: "", 
-    password: "", 
-    confirmPassword: "", 
+  const [form, setForm] = useState({
+    email: "",
+    password: "",
+    confirmPassword: "",
     username: "",
-    profilePicture: null as File | null
+    profilePicture: null as File | null,
+  });
+  const [errors, setErrors] = useState({
+    email: "",
+    password: "",
+    confirmPassword: "",
+    username: "",
+    profilePicture: "",
   });
   const [isSignUp, setIsSignUp] = useState(true);
   const [useDefault, setUseDefault] = useState(false);
 
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
+  const validateForm = () => {
+    let valid = true;
+    const newErrors = { email: "", password: "", confirmPassword: "", username: "", profilePicture: "" };
+  
+    if (!form.email) {
+      newErrors.email = "Email is required";
+      valid = false;
+    } else if (!/^\S+@\S+\.\S+$/.test(form.email)) {
+      newErrors.email = "Please enter a valid email";
+      valid = false;
+    }
+  
+    if (!form.password) {
+      newErrors.password = "Password is required";
+      valid = false;
+    } else if (form.password.length < 6) {
+      newErrors.password = "Password must be at least 6 characters";
+      valid = false;
+    }
+  
     if (isSignUp) {
-      if (form.password !== form.confirmPassword) {
-        alert("Passwords do not match!");
-        return;
+      if (!form.username) {
+        newErrors.username = "Username is required";
+        valid = false;
       }
-      signUp(form.username, form.email, form.password, form.profilePicture, useDefault);
-    } else {
-      signIn(form.email, form.password);
+  
+      if (form.password !== form.confirmPassword) {
+        newErrors.confirmPassword = "Passwords do not match";
+        valid = false;
+      }
+  
+      if (!useDefault && !form.profilePicture) {
+        newErrors.profilePicture = "Either upload a picture or select the default option";
+        valid = false;
+      }
+    }
+  
+    setErrors(newErrors);
+    return valid;
+  };
+  
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+  
+    if (!validateForm()) {
+      return;
+    }
+  
+    try {
+      if (isSignUp) {
+        await signUp(form.username, form.email, form.password, form.profilePicture, useDefault);
+      } else {
+        await signIn(form.email, form.password);
+      }
+    } catch (error: any) {
+      // Handle specific error cases
+      if (error.code === "auth/invalid-email") {
+        setErrors((prev) => ({ ...prev, email: "Invalid email address" }));
+      } else if (error.code === "auth/weak-password") {
+        setErrors((prev) => ({ ...prev, password: "Weak password. Try a stronger one." }));
+      } else if (error.code === 400) {
+        setErrors((prev) => ({ ...prev, email: "Email is already in use" }));
+      } else if (error.code === "auth/user-not-found") {
+        setErrors((prev) => ({ ...prev, email: "No account found with this email." }));
+      } else if (error.code === "auth/incorrect-password") {
+        setErrors((prev) => ({ ...prev, password: "Incorrect password. Please try again." }));
+      } else {
+        // Default case for any unknown error
+        setErrors((prev) => ({
+          ...prev,
+          email: `An unexpected error occurred: ${error.message}`,
+        }));
+      }
     }
   };
+  
+
 
   return (
     <form onSubmit={handleSubmit} className="space-y-4">
       {isSignUp && (
         <div>
-          <label className="block text-sm font-medium text-gray-700">Username</label>
-          <input
-            type="text"
-            placeholder="Enter your username"
-            value={form.username}
-            onChange={(e) => setForm({ ...form, username: e.target.value })}
-            required
-            className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring focus:ring-indigo-300"
-          />
-        </div>
-      )}
-      {isSignUp && !useDefault && (
-        <div>
-          <label className="block text-sm font-medium text-gray-700">Profile Picture</label>
-          <input
-            type="file"
-            accept="image/*"
-            onChange={(e) => {
-              const file = e.target.files?.[0];
-              if (file) {
-                setForm({ ...form, profilePicture: file });
-              }
-            }}
-            className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring focus:ring-indigo-300"
-          />
-        </div>
+        <label className="block text-sm font-medium text-gray-700">Username</label>
+        <input
+          type="text"
+          placeholder="Enter your username"
+          value={form.username}
+          onChange={(e) => setForm({ ...form, username: e.target.value })}
+          className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring focus:ring-indigo-300"
+        />
+        {errors.username && <p className="text-sm text-red-600">{errors.username}</p>}
+      </div>
       )}
       {isSignUp && (
-        <div>
-          <label className="flex items-center space-x-2">
-            <input
-              type="checkbox"
-              checked={useDefault}
-              onChange={(e) => setUseDefault(e.target.checked)}
-              className="h-5 w-5"
-            />
-            <span className="text-sm text-gray-700">Use default profile picture</span>
-          </label>
-        </div>
-      )}
+  <div>
+    <label className="block text-sm font-medium text-gray-700">Profile Picture</label>
+    <input
+      type="file"
+      accept="image/*"
+      onChange={(e) => {
+        const file = e.target.files?.[0];
+        if (file) {
+          setForm({ ...form, profilePicture: file });
+        }
+      }}
+      className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring focus:ring-indigo-300"
+    />
+    {errors.profilePicture && (
+      <p className="text-sm text-red-600">{errors.profilePicture}</p>
+    )}
+  </div>
+)}
+{isSignUp && (
+  <div>
+    <label className="flex items-center space-x-2">
+      <input
+        type="checkbox"
+        checked={useDefault}
+        onChange={(e) => setUseDefault(e.target.checked)}
+        className="h-5 w-5"
+      />
+      <span className="text-sm text-gray-700">Use default profile picture</span>
+    </label>  
+  </div>
+)}
+
       <div>
-        <label className="block text-sm font-medium text-gray-700">Email</label>
+      <label className="block text-sm font-medium text-gray-700">Email</label>
         <input
           type="email"
           placeholder="Enter your email address"
           value={form.email}
           onChange={(e) => setForm({ ...form, email: e.target.value })}
-          required
           className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring focus:ring-indigo-300"
         />
+        {errors.email && <p className="text-sm text-red-600">{errors.email}</p>}
       </div>
       <div>
-        <label className="block text-sm font-medium text-gray-700">Password</label>
+      <label className="block text-sm font-medium text-gray-700">Password</label>
         <input
           type="password"
           placeholder="Enter your password"
           value={form.password}
           onChange={(e) => setForm({ ...form, password: e.target.value })}
-          required
           className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring focus:ring-indigo-300"
         />
+        {errors.password && <p className="text-sm text-red-600">{errors.password}</p>}
       </div>
       {isSignUp && (
         <div>
@@ -200,9 +281,9 @@ const AuthForm = () => {
             placeholder="Confirm your password"
             value={form.confirmPassword}
             onChange={(e) => setForm({ ...form, confirmPassword: e.target.value })}
-            required
             className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring focus:ring-indigo-300"
           />
+          {errors.confirmPassword && <p className="text-sm text-red-600">{errors.confirmPassword}</p>}
         </div>
       )}
       <button

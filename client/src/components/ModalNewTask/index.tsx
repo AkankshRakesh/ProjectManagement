@@ -1,6 +1,6 @@
 import Modal from "@/components/Modal";
 import { Priority, Status, useCreateTaskMutation } from "@/state/api";
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { formatISO } from "date-fns";
 
 type Props = {
@@ -21,7 +21,12 @@ const ModalNewTask = ({ isOpen, onClose, id = null }: Props) => {
   const [authorUserId, setAuthorUserId] = useState("");
   const [assignedUserId, setAssignedUserId] = useState("");
   const [projectId, setProjectId] = useState("");
-
+  useEffect(() => {
+    const storedUserId = localStorage.getItem("userId");
+    if (storedUserId) {
+      setAuthorUserId(storedUserId);
+    }
+  }, []);
   const handleSubmit = async () => {
     try {
       const formattedStartDate = formatISO(new Date(startDate), {
@@ -135,7 +140,7 @@ const ModalNewTask = ({ isOpen, onClose, id = null }: Props) => {
         <input
           type="text"
           className={inputStyles}
-          placeholder="Author User ID"
+          placeholder="Author User ID (Find ID in Users Table)"
           value={authorUserId}
           onChange={(e) => setAuthorUserId(e.target.value)}
           required
@@ -143,7 +148,7 @@ const ModalNewTask = ({ isOpen, onClose, id = null }: Props) => {
         <input
           type="text"
           className={inputStyles}
-          placeholder="Assigned User ID"
+          placeholder="Assigned User ID (Find ID in Users Table)"
           value={assignedUserId}
           onChange={(e) => setAssignedUserId(e.target.value)}
         />

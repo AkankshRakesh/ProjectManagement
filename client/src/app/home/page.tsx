@@ -1,14 +1,7 @@
 "use client";
 
-import {
-  Priority,
-  Project,
-  Task,
-  useGetProjectsQuery,
-  useGetTasksQuery,
-} from "@/state/api";
-import React from "react";
-import { useAppSelector } from "../redux";
+import React, { useEffect, useState } from "react";
+import { useGetProjectsQuery, useGetTasksByUserQuery } from "@/state/api";
 import { DataGrid, GridColDef } from "@mui/x-data-grid";
 import Header from "@/components/Header";
 import {
@@ -25,6 +18,7 @@ import {
   YAxis,
 } from "recharts";
 import { dataGridClassNames, dataGridSxStyles } from "@/lib/utils";
+import { useAppSelector } from "../redux";
 
 const taskColumns: GridColDef[] = [
   { field: "title", headerName: "Title", width: 200 },
@@ -36,26 +30,41 @@ const taskColumns: GridColDef[] = [
 const COLORS = ["#0088FE", "#00C49F", "#FFBB28", "#FF8042"];
 
 const HomePage = () => {
+  const [userId, setUserId] = useState<string | null>(null);
+  const [isYourTasks, setIsYourTasks] = useState(false); // Track which mode is active
+
   const {
     data: tasks,
     isLoading: tasksLoading,
     isError: tasksError,
-  } = useGetTasksQuery({ projectId: parseInt("1") });
-  const { data: projects, isLoading: isProjectsLoading } =
-    useGetProjectsQuery();
+  } = useGetTasksByUserQuery(isYourTasks ? parseInt(userId || "1", 10) : 2); // Switch between userId and 1
+
+  const { data: projects, isLoading: isProjectsLoading } = useGetProjectsQuery();
 
   const isDarkMode = useAppSelector((state) => state.global.isDarkMode);
 
+  useEffect(() => {
+    const storedUserId = localStorage.getItem("userId");
+    if (storedUserId) {
+      setUserId(storedUserId);
+    }
+  }, []);
+
   if (tasksLoading || isProjectsLoading) return <div>Loading..</div>;
-  if (tasksError || !tasks || !projects) return <div className="container h-full w-[100%] bg-gray-100 bg-transparent p-8 text-5xl">Error fetching data, Sorry dude</div>;
+  if (tasksError || !tasks || !projects)
+    return (
+      <div className="container h-full w-[100%] bg-gray-100 bg-transparent p-8 text-5xl">
+        Error fetching data, Sorry dude
+      </div>
+    );
 
   const priorityCount = tasks.reduce(
-    (acc: Record<string, number>, task: Task) => {
+    (acc: Record<string, number>, task: any) => {
       const { priority } = task;
-      acc[priority as Priority] = (acc[priority as Priority] || 0) + 1;
+      acc[priority] = (acc[priority] || 0) + 1;
       return acc;
     },
-    {},
+    {}
   );
 
   const taskDistribution = Object.keys(priorityCount).map((key) => ({
@@ -64,13 +73,17 @@ const HomePage = () => {
   }));
 
   const statusCount = projects.reduce(
-    (acc: Record<string, number>, project: Project) => {
-      const status = project.endDate ? "Completed" : "Active";
+    (acc: Record<string, number>, project: any) => {
+      const today = new Date(); // Get today's date
+      const endDate = project.endDate ? new Date(project.endDate) : null;
+  
+      const status = endDate && endDate > today ? "Active" : "Complete";
       acc[status] = (acc[status] || 0) + 1;
       return acc;
     },
-    {},
+    {}
   );
+  
 
   const projectStatus = Object.keys(statusCount).map((key) => ({
     name: key,
@@ -94,6 +107,15 @@ const HomePage = () => {
   return (
     <div className="container h-full w-[100%] bg-gray-100 bg-transparent p-8">
       <Header name="Project Management Dashboard" />
+      <div className="mb-4">
+        {/* Toggle Button */}
+        <button
+          className="px-4 py-2 rounded bg-blue-500 text-white hover:bg-blue-600"
+          onClick={() => setIsYourTasks(!isYourTasks)}
+        >
+          {isYourTasks ? "View Team Tasks" : "View Your Tasks"}
+        </button>
+      </div>
       <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
         <div className="rounded-lg bg-white p-4 shadow dark:bg-dark-secondary">
           <h3 className="mb-4 text-lg font-semibold dark:text-white">
@@ -107,12 +129,7 @@ const HomePage = () => {
               />
               <XAxis dataKey="name" stroke={chartColors.text} />
               <YAxis stroke={chartColors.text} />
-              <Tooltip
-                contentStyle={{
-                  width: "min-content",
-                  height: "min-content",
-                }}
-              />
+              <Tooltip />
               <Legend />
               <Bar dataKey="count" fill={chartColors.bar} />
             </BarChart>
@@ -139,7 +156,7 @@ const HomePage = () => {
         </div>
         <div className="rounded-lg bg-white p-4 shadow dark:bg-dark-secondary md:col-span-2">
           <h3 className="mb-4 text-lg font-semibold dark:text-white">
-            Your Tasks
+            {isYourTasks ? "Your Tasks" : "Team Tasks"}
           </h3>
           <div style={{ height: 400, width: "100%" }}>
             <DataGrid

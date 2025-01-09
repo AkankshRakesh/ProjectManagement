@@ -17,7 +17,7 @@ const Settings = () => {
   const [userSettings, setUserSettings] = useState({
     username: '',
     email: '',
-    teamName: 'Development Team',
+    teamName: 'Quantum Innovations',
     roleName: 'Developer',
     profilePictureUrl: '', // Add field for profile picture URL
   });
@@ -46,7 +46,7 @@ const Settings = () => {
       setUserSettings((prev) => ({
         ...prev,
         username: userData.username,
-        profilePictureUrl: userData.profilePictureUrl || 'default.jpg', // Set the profile picture URL or default
+        profilePictureUrl: userData.profilePictureUrl || 'userDefault.jpg', // Set the profile picture URL or default
       }));
     }
   }, [userData]);

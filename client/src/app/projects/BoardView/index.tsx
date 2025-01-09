@@ -226,7 +226,9 @@ type BoardProps = {
               {task.assignee && (
                 <Image
                   key={task.assignee.userId}
-                  src={`/${task.assignee.profilePictureUrl!}`}
+                  src={task.assignee.profilePictureUrl && task.assignee.profilePictureUrl.startsWith('http') 
+                    ? task.assignee.profilePictureUrl 
+                    : `/${task.assignee.profilePictureUrl}`}
                   alt={task.assignee.username}
                   width={30}
                   height={30}
@@ -236,7 +238,9 @@ type BoardProps = {
               {task.author && (
                 <Image
                   key={task.author.userId}
-                  src={`/${task.author.profilePictureUrl!}`}
+                  src={task.author.profilePictureUrl && task.author.profilePictureUrl.startsWith('http') 
+                    ? task.author.profilePictureUrl 
+                    : `/${task.author.profilePictureUrl}`}
                   alt={task.author.username}
                   width={30}
                   height={30}

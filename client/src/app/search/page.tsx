@@ -30,33 +30,33 @@ const Search = () => {
     <div className="p-8 ">
       <Header name="Search" />
       <div>
-        <input
-          type="text"
-          placeholder="Search..."
-          className="w-1/2 rounded border p-3 shadow"
-          onChange={(e) => setSearchTerm(e.target.value)}
-        />
+      <input
+      type="text"
+      placeholder="Search..."
+      className="w-full md:w-1/2 lg:w-1/3 mx-auto p-3 rounded-lg shadow-lg border focus:ring-2 focus:ring-blue-500 transition-all duration-300"
+      onChange={(e) => setSearchTerm(e.target.value)}
+    />
       </div>
       <div className='p-5 dark:text-white'>
-        {isLoading && <p>Loading...</p>}
-        {isError && <p>Error occurred while fetching search results.</p>} 
+        {isLoading && <p className='dark:text-white'>Loading...</p>}
+        {isError && <p className='dark:text-white'>Error occurred while fetching search results.</p>} 
         {!isLoading && !isError && searchResults && (
             <div>
                 {searchResults.tasks && searchResults.tasks.length > 0 && (
-                    <h2>Tasks</h2>
+                    <h2 className="text-2xl font-semibold mb-3">Tasks</h2>
                 )}
                 {searchResults.tasks?.map((task) => (
                     <TaskCard key={task.id} task={task} />
                 ))}
 
                 {searchResults.projects && searchResults.projects?.length > 0 && (
-                    <h2>Projects</h2>
+                    <h2 className="text-2xl font-semibold mb-3">Projects</h2>
                 )}
                 {searchResults.projects?.map((project) => (
                     <ProjectCard key={project.id} project={project} />
                 ))}
                 {searchResults.users && searchResults.users?.length > 0 && (
-                    <h2>Users</h2>
+                    <h2 className="text-2xl font-semibold mb-3">Users</h2>
                 )}
                 {searchResults.users?.map((user) => (
                     <UserCard key={user.userId} user={user} />

@@ -11,7 +11,7 @@ import Image from 'next/image';
 
 const UserDetails = ({ userId }: { userId: string }) => {
   const { data: user, isLoading, error } = useGetUserQuery(userId);
-
+  localStorage.setItem('userId', user?.userId?.toString() || '1');
   if (isLoading) return <p>Loading...</p>;
   if (error) return <p>Error fetching user details</p>;
 
