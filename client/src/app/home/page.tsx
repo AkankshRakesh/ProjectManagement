@@ -106,7 +106,7 @@ const HomePage = () => {
 
   return (
     <div className="container h-full w-[100%] bg-gray-100 bg-transparent p-8">
-      <Header name="Project Management Dashboard" />
+      <Header name="Syncflow Dashboard" />
       <div className="mb-4">
         {/* Toggle Button */}
         <button
