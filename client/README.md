@@ -1,1 +1,0 @@
-Project manager using Cognito, EC2, Node, AWS RDS, Postgres, Tailwind
