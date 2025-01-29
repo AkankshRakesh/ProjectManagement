@@ -33,3 +33,10 @@ Syncflow is a project management **TypeScript-based Project Management Applicati
 - **ORM:** Prisma
 - **Hosting:** Vercel (Serverless Functions)
 
+## Deployment: https://syncflow-three.vercel.app/
+
+## Photos
+![Screenshot 2025-01-13 102121](https://github.com/user-attachments/assets/dafa7080-474d-4043-8ded-9c159ce07f1d)
+![Screenshot 2025-01-13 103349](https://github.com/user-attachments/assets/a467fe15-eb9c-46fd-b620-fbe98da88688)
+![Screenshot 2025-01-13 103426](https://github.com/user-attachments/assets/2c6ea421-2c0c-405c-a9ff-025434ff5d1b)
+![Screenshot 2025-01-13 103454](https://github.com/user-attachments/assets/99ff1f6a-a35b-4cec-a95d-02fb93eaae61)
